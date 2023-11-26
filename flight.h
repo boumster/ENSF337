@@ -17,15 +17,20 @@ public:
     void removePassenger(string id);
     void showFlightSeatMap() const;
     void showPassengersInfo() const;
+    int getRow() const;
+    int getCol() const;
 
     string getFlightName() const;
     vector<vector<Seat*>> getSeats() const;
+    vector<Passenger*> getPassengers() const;
     bool isSeatAvailable(int row, int col) const;
 
 private:
     string flightName;
     vector<vector<Seat*>> seats;
     vector<Passenger*> passengers;
+    int rowsM;
+    int colsM;
 };
 
 #endif // FLIGHT_H
