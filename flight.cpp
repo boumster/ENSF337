@@ -105,6 +105,15 @@ bool Flight::isSeatAvailable(int row, int col) const {
     return false;
 }
 
+bool Flight::isIdAvailable(const string& id) const {
+    for (Passenger* passenger : passengers) {
+        if (passenger->getIdNumber() == id) {
+            return false;
+        }
+    }
+    return true;
+}
+
 string Flight::getFlightName() const { return flightName; }
 vector<Passenger*> Flight::getPassengers() const { return passengers; }
 vector<vector<Seat*>> Flight::getSeats() const { return seats; }
