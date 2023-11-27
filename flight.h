@@ -24,6 +24,7 @@ public:
     vector<vector<Seat*>> getSeats() const;
     vector<Passenger*> getPassengers() const;
     bool isSeatAvailable(int row, int col) const;
+    bool isIdAvailable(const string& id) const;
 
 private:
     string flightName;

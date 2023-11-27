@@ -1,4 +1,4 @@
-#include "flight.h"
+#include "Airline.h"
 #include <iostream>
 #include <string.h>
 #include <fstream>
@@ -11,21 +11,20 @@ void display_seat_map(Flight* flight);
 void remove_passenger(Flight* flight);
 void save_data(Flight* flight);
 Flight* load_data(const string& filename);
+string trim(const string& str);
+void menu();
+void display_header();
 
 int main() {
     // Create a Flight
-    Flight* flight = load_data("flight_info.txt");
+    Airline* airline = new Airline("WestJet");
+    Flight* flight = load_data("entry_data.txt");
+    airline->addFlight(flight);
+    display_header();
 
     int choice;
     do {
-        cout << endl << "Please select one of the following options:" << endl << endl;
-        cout << "1. Display Flight Seat Map" << endl;
-        cout << "2. Display Passengers Information" << endl;
-        cout << "3. Add a new Passenger" << endl;
-        cout << "4. Remove a Passenger" << endl;
-        cout << "5. Save Data" << endl;
-        cout << "6. Quit" << endl << endl;
-        cout << "Enter your choice: (1, 2, 3, 4, 5, or 6) ";
+        menu();
         cin >> choice;
 
         switch (choice) {
@@ -64,8 +63,13 @@ void add_passenger(Flight* flight) {
     string first_name;
     string last_name;
     string phone_number;
-    cout << "Please enter the passenger id: ";
-    cin >> id;
+    do {
+        cout << "Please enter the passenger id: ";
+        cin >> id;
+        if(flight->isIdAvailable(id) == false) {
+            cout << "ID is not available. Please choose another ID." << endl;
+        }
+    } while (flight->isIdAvailable(id) == false);
     cout << "Pleanse enter the passenger first name: ";
     cin >> ws; // This will consume any leading whitespace
     getline(cin, first_name);
@@ -93,6 +97,7 @@ void add_passenger(Flight* flight) {
 
 void display_passengers_info(Flight* flight)
 {
+    cout << endl;
     flight->showPassengersInfo();
     cout << "\n<<< Press Return to Continue >>> \n";
     cin.ignore(); // Ignore the newline character left in the input buffer
@@ -101,6 +106,7 @@ void display_passengers_info(Flight* flight)
 
 void display_seat_map(Flight* flight)
 {
+    cout << endl;
     flight->showFlightSeatMap();
     cout << "\n<<< Press Return to Continue >>> \n";
     cin.ignore(); // Ignore the newline character left in the input buffer
@@ -118,14 +124,14 @@ void save_data(Flight* flight) {
 
     char choice;
     do {
-        cout << "Do you want to save the data in the \"flight_data.txt\"? Please answer <Y or N>: ";
+        cout << "Do you want to save the data in the \"flight_info.txt\"? Please answer <Y or N>: ";
         cin >> choice;
         if (choice == 'N') {
             return;
         }
     } while (choice != 'Y');
 
-    ofstream file("flight_data.txt");
+    ofstream file("flight_info.txt");
 
     if (file.is_open()) {
         // Write the flight name
@@ -181,42 +187,30 @@ Flight* load_data(const string& filename) {
 
         // Read the passengers' information
         while (getline(file, line)) {
-            stringstream ss(line);
-            string word;
-            vector<string> words;
+            string firstName = line.substr(0, 20);
+            string lastName = line.substr(20, 20);
+            string phoneNumber = line.substr(40, 20);
+            string seat = line.substr(60, 4);
+            string idNumber = line.substr(64, 5);
 
-            // Split the line into words
-            while (ss >> word) {
-                words.push_back(word);
-            }
+            // Trim the strings
+            firstName = trim(firstName);
+            lastName = trim(lastName);
+            phoneNumber = trim(phoneNumber);
+            seat = trim(seat);
+            idNumber = trim(idNumber);
 
-            // Extract the seat and ID
-            string idNumber = words.back(); words.pop_back();
-            string seat = words.back(); words.pop_back();
-
-            // The last remaining word is the phone number
-            string phoneNumber = words.back(); words.pop_back();
-
-            // The last remaining word is the last name
-            string lastName = words.back(); words.pop_back();
-
-            // All the remaining words are the first name
-            string firstName;
-            for (const string& word : words) {
-                if (!firstName.empty()) {
-                    firstName += " ";
-                }
-                firstName += word;
-            }
-
+            // Convert seat to row and column
             int i = 0;
             int rowNum = 0;
             while (seat[i] >= '0' && seat[i] <= '9') {
                 rowNum = rowNum * 10 + (seat[i] - '0');
                 i++;
             }
+            char seatCol = seat[i];
+
             // Add the passenger to the flight
-            flight->addPassenger(idNumber, firstName, lastName, phoneNumber, rowNum, seat[i] - 'A');
+            flight->addPassenger(idNumber, firstName, lastName, phoneNumber, rowNum - 1, seatCol - 'A');
         }
 
         file.close();
@@ -225,4 +219,33 @@ Flight* load_data(const string& filename) {
     }
 
     return flight;
+}
+
+string trim(const string& str) {
+    size_t first = str.find_first_not_of(' ');
+    if (string::npos == first) {
+        return str;
+    }
+    size_t last = str.find_last_not_of(' ');
+    return str.substr(first, (last - first + 1));
+}
+
+void menu(){
+    cout << endl << "Please select one of the following options:" << endl << endl;
+    cout << "1. Display Flight Seat Map" << endl;
+    cout << "2. Display Passengers Information" << endl;
+    cout << "3. Add a new Passenger" << endl;
+    cout << "4. Remove a Passenger" << endl;
+    cout << "5. Save Data" << endl;
+    cout << "6. Quit" << endl << endl;
+    cout << "Enter your choice: (1, 2, 3, 4, 5, or 6) ";
+}
+
+void display_header(){
+    cout << "VersionL 1.0" << endl;
+    cout << "Term Project - Flight Management Program " << endl;
+    cout << "Produced by: Phoenix Bouma" << endl;
+    cout << "\n<<< Press Return to Continue >>> \n";
+    cin.ignore(); // Ignore the newline character left in the input buffer
+    cin.get(); // Wait for user input
 }
