@@ -244,7 +244,7 @@ void menu(){
 void display_header(){
     cout << "VersionL 1.0" << endl;
     cout << "Term Project - Flight Management Program " << endl;
-    cout << "Produced by: Phoenix Bouma and Mehakdeep Kaur" << endl;
+    cout << "Produced by: Phoenix Bouma and Mehakdeep Kaur and Sayma Sayed" << endl;
     cout << "\n<<< Press Return to Continue >>> \n";
     cin.ignore(); // Ignore the newline character left in the input buffer
     cin.get(); // Wait for user input
